@@ -14,8 +14,10 @@ from ray.rllib.env.async_vector_env import AsyncVectorEnv
 from ray.rllib.env.atari_wrappers import get_wrapper_by_cls, MonitorEnv
 from ray.rllib.utils.tf_run_builder import TFRunBuilder
 
+
+# Change
 RolloutMetrics = namedtuple(
-    "RolloutMetrics", ["episode_length", "episode_reward", "agent_rewards"])
+    "RolloutMetrics", ["episode_length", "episode_reward", "agent_rewards", "capital"])
 
 PolicyEvalData = namedtuple("PolicyEvalData",
                             ["env_id", "agent_id", "obs", "rnn_state"])
@@ -266,8 +268,16 @@ def _env_runner(async_vector_env,
                     for m in atari_metrics:
                         yield m
                 else:
+
+                    try:
+                        env = async_vector_env.vector_env.envs[0].env
+                        cap = env.capital/env.initial_funds
+                    except:
+                        cap = 0
+
+                    # Edit
                     yield RolloutMetrics(episode.length, episode.total_reward,
-                                         dict(episode.agent_rewards))
+                                         dict(episode.agent_rewards), cap)
             else:
                 all_done = False
                 # At least send an empty dict if not done

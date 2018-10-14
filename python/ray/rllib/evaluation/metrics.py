@@ -39,22 +39,34 @@ def summarize_episodes(episodes, new_episodes):
     """
 
     episode_rewards = []
+    episode_caps = []
     episode_lengths = []
+
+
     policy_rewards = collections.defaultdict(list)
     for episode in episodes:
         episode_lengths.append(episode.episode_length)
         episode_rewards.append(episode.episode_reward)
+        episode_caps.append(episode.capital)
+
         for (_, policy_id), reward in episode.agent_rewards.items():
             if policy_id != DEFAULT_POLICY_ID:
                 policy_rewards[policy_id].append(reward)
     if episode_rewards:
         min_reward = min(episode_rewards)
         max_reward = max(episode_rewards)
+        max_cap = max(episode_caps)
+        min_cap = min(episode_caps)
+
     else:
         min_reward = float('nan')
         max_reward = float('nan')
+        min_cap = float('nan')
+        max_cap = float('nan')
+
     avg_reward = np.mean(episode_rewards)
     avg_length = np.mean(episode_lengths)
+    avg_cap = np.mean(episode_caps)
 
     for policy_id, rewards in policy_rewards.copy().items():
         policy_rewards[policy_id] = np.mean(rewards)
@@ -65,4 +77,8 @@ def summarize_episodes(episodes, new_episodes):
         episode_reward_mean=avg_reward,
         episode_len_mean=avg_length,
         episodes_this_iter=len(new_episodes),
-        policy_reward_mean=dict(policy_rewards))
+        policy_reward_mean=dict(policy_rewards),
+        episode_capital_max = max_cap,
+        episode_capital_min = min_cap,
+        episode_capital_mean = avg_cap
+    )
